@@ -46,4 +46,55 @@ const app = express();
 
 app.use(bodyParser.json());
 
+let storage = []
+
+app.get('/todos', (req, res) => {
+  res.send(storage)
+})
+app.get('/todos/:id',(req,res)=>{
+  let id = parseInt(req.params.id)
+  let todo = storage.find(todo=>todo.id === id)
+  if(!todo){
+    res.sendStatus(404).send("not found")
+  }else{
+    res.send(todo).sendStatus(200)
+  }
+})
+
+app.post('/todos',(req,res)=>{
+  let todo = {
+    id:Math.floor(Math.random()*100),
+    title:req.body.title,
+    description:req.body.description
+  }
+  storage.push(todo)
+  res.status(201).send(todo)
+})
+
+app.put('/todos/:id',(req,res)=>{
+  let todoInd = storage.findIndex(todo => todo.id === parseInt(req.params.id))
+  if(todoInd === -1){
+    res.statustatus(404).send("Not Found")
+  }else{
+    storage[todoInd].title = req.body.title
+    storage[todoInd].description = req.body.description
+    res.json(storage[todoInd])
+  }
+})
+
+app.delete('/todos/:id',(req,res)=>{
+  let id = parseInt(req.params.id)
+  let todoInd = storage.findIndex(todo => todo.id === id)
+  if(todoInd === -1){
+    res.sendStatus(404).send("Not Found")
+  }else{
+    storage.splice(todoInd,1);
+    res.sendStatus(200).send("Deleted")
+  }
+})
+
+function middleware(req,res,next){
+  res.sendStatus(404).send("Not Found")
+}
+app.use(middleware)
 module.exports = app;
